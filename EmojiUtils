@@ -1,0 +1,62 @@
+package com.example.administrator.emoji
+
+import android.content.Context
+import android.graphics.Typeface
+import android.os.Build
+import android.support.text.emoji.EmojiCompat
+import android.support.text.emoji.bundled.BundledEmojiCompatConfig
+import android.widget.TextView
+
+/**
+ * 描述:
+ * 创建: lzs
+ * 时间: 2018/7/24
+ */
+
+object EmojiUtils {
+    private var isInit = false
+    private var mTypeface: Typeface? = null
+
+    fun initEmoji(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            val config = BundledEmojiCompatConfig(context)
+            EmojiCompat.init(config)
+        }
+        try {
+            mTypeface = Typeface.createFromAsset(context.assets, "NotoColorEmojiCompat.ttf")
+        } catch (e: Exception) {
+
+        }
+        isInit = true
+    }
+
+    fun process(emoji: String): CharSequence {
+        if (!isInit) {
+            return ""
+        }
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && isInit) {
+                return EmojiCompat.get().process(String(Character.toChars(Integer.parseInt(emoji, 16))))
+            } else {
+                return String(Character.toChars(Integer.parseInt(emoji, 16)))
+            }
+        } catch (e: Exception) {
+            return ""
+        }
+    }
+
+    fun loadEmoji(textView: TextView, emoji: String) {
+        if (!isInit) {
+            return
+        }
+        try {
+            val emojiChar = process(emoji)
+            if (mTypeface != null) {
+                textView.typeface = mTypeface
+            }
+            textView.text = emojiChar
+        } catch (e: Exception) {
+
+        }
+    }
+}
